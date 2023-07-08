@@ -58,6 +58,26 @@ const deleteaUser = asyncHandler(async (req, res) => {
     throw new Error("User not found");
   }
 });
+const updateUser = asyncHandler(async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findByIdAndUpdate(
+      id,
+      {
+        firstname: req?.body?.firstname,
+        lastname: req?.body?.lastname,
+        email: req?.body?.email,
+        mobile: req?.body?.mobile,
+      },
+      {
+        new: true,
+      }
+    );
+    res.json(user);
+  } catch (error) {
+    throw new Error("User not found");
+  }
+});
 
 module.exports = {
   createUser,
@@ -65,4 +85,5 @@ module.exports = {
   getallUser,
   getaUser,
   deleteaUser,
+  updateUser,
 };
