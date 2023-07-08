@@ -39,5 +39,30 @@ const getallUser = asyncHandler(async (req, res) => {
     throw new Error();
   }
 });
+const getaUser = asyncHandler(async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById(id);
+    res.json(user);
+  } catch (error) {
+    throw new Error("User not found");
+  }
+});
 
-module.exports = { createUser, loginUserCtrl, getallUser };
+const deleteaUser = asyncHandler(async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findByIdAndDelete(id);
+    res.json(user);
+  } catch (error) {
+    throw new Error("User not found");
+  }
+});
+
+module.exports = {
+  createUser,
+  loginUserCtrl,
+  getallUser,
+  getaUser,
+  deleteaUser,
+};
