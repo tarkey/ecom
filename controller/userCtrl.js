@@ -2,6 +2,7 @@ const User = require("../models/userModel");
 const { generateToken } = require("../config/jwtToken");
 const asyncHandler = require("express-async-handler");
 const validateDbId = require("../utils/validatemongoDbId");
+const { generateRefreshToken } = require("../config/refreshToken");
 
 const createUser = asyncHandler(async (req, res) => {
   const email = req.body.email;
@@ -19,6 +20,18 @@ const loginUserCtrl = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   const finduser = await User.findOne({ email });
   if (finduser && (await finduser.isPasswordMatched(password))) {
+    const refreshToken = await generateRefreshToken(finduser?._id);
+    const updateUser = await User.findByIdAndUpdate(
+      finduser?._id,
+      {
+        refreshToken: refreshToken,
+      },
+      { new: true }
+    );
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000 * 2,
+    });
     res.json({
       _id: finduser?._id,
       firstname: finduser?.firstname,
