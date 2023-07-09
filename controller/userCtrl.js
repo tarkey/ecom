@@ -1,6 +1,7 @@
 const User = require("../models/userModel");
 const { generateToken } = require("../config/jwtToken");
 const asyncHandler = require("express-async-handler");
+const validateDbId = require("../utils/validatemongoDbId");
 
 const createUser = asyncHandler(async (req, res) => {
   const email = req.body.email;
@@ -42,6 +43,7 @@ const getallUser = asyncHandler(async (req, res) => {
 const getaUser = asyncHandler(async (req, res) => {
   try {
     const { id } = req.params;
+    validateDbId(id);
     const user = await User.findById(id);
     res.json(user);
   } catch (error) {
@@ -80,6 +82,7 @@ const updateUser = asyncHandler(async (req, res) => {
 });
 const blockUser = asyncHandler(async (req, res) => {
   const { id } = req.params;
+  validateDbId(id);
   try {
     const block = await User.findByIdAndUpdate(
       id,
@@ -97,6 +100,7 @@ const blockUser = asyncHandler(async (req, res) => {
 });
 const unblockUser = asyncHandler(async (req, res) => {
   const { id } = req.params;
+  validateDbId(id);
   try {
     const block = await User.findByIdAndUpdate(
       id,
