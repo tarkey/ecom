@@ -3,6 +3,7 @@ const { generateToken } = require("../config/jwtToken");
 const asyncHandler = require("express-async-handler");
 const validateDbId = require("../utils/validatemongoDbId");
 const { generateRefreshToken } = require("../config/refreshToken");
+const jwt = require("jsonwebtoken");
 
 const createUser = asyncHandler(async (req, res) => {
   const email = req.body.email;
@@ -43,6 +44,25 @@ const loginUserCtrl = asyncHandler(async (req, res) => {
   } else {
     throw new Error("Invalid credentials");
   }
+});
+
+const handleRefreshToken = asyncHandler(async (req, res) => {
+  const cookie = req.cookies;
+  if (!cookie.refreshToken) {
+    throw new Error("No refresh token in cookies");
+  }
+  const refreshToken = cookie.refreshToken;
+  const user = await User.findOne({ refreshToken });
+  if (!user) {
+    throw new Error("No User found with  this token");
+  }
+  jwt.verify(refreshToken, process.env.JWT_SECRET, (err, decoded) => {
+    if (err || user.id !== decoded.id) {
+      throw new Error("There is somethng wrong with refresh Token");
+    }
+    const accessToken = generateToken(user?.id);
+    res.json({ accessToken });
+  });
 });
 
 const getallUser = asyncHandler(async (req, res) => {
@@ -137,4 +157,5 @@ module.exports = {
   updateUser,
   blockUser,
   unblockUser,
+  handleRefreshToken,
 };
