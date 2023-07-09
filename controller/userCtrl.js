@@ -24,7 +24,7 @@ const loginUserCtrl = asyncHandler(async (req, res) => {
       lastname: finduser?.lastname,
       email: finduser?.email,
       mobile: finduser?.mobile,
-      token: generateToken(),
+      token: generateToken(finduser?.id),
     });
   } else {
     throw new Error("Invalid credentials");
