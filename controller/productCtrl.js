@@ -5,9 +5,10 @@ const slugify = require("slugify");
 const createProduct = asyncHandler(async (req, res) => {
   try {
     if (req.body.title) {
-      req.body = slugify(req.body.title);
+      req.body.slug = slugify(req.body.title);
     }
     const product = await Product.create(req.body);
+
     res.json(product);
   } catch (error) {
     throw new Error(error);

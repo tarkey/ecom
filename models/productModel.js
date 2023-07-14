@@ -23,7 +23,6 @@ const productSchema = new mongoose.Schema(
     },
     category: {
       type: String,
-      ref: "Category",
       required: true,
     },
     quantity: {
