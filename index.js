@@ -8,6 +8,7 @@ const bodyparser = require("body-parser");
 const { notFound, errorHandler } = require("./middlewares/errorHandler");
 const cookieParser = require("cookie-parser");
 const morgan = require("morgan");
+
 const port = process.env.PORT || 8001;
 dbConnect();
 app.use(morgan());
