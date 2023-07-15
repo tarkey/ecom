@@ -60,7 +60,28 @@ const getAllProducts = asyncHandler(async (req, res) => {
     queryString = queryString.replace(/\b(gte|gt|lte|lt)\b/g, (match) => {
       return "$" + match;
     });
-    const query = Product.find(JSON.parse(queryString));
+    let query = Product.find(JSON.parse(queryString));
+    if (req.query.sort) {
+      const sortBy = req.query.sort.split(",").join(" ");
+      query = query.sort(sortBy);
+    } else {
+      query = query.sort("-createdAt");
+    }
+    if (req.query.fields) {
+      const fields = req.query.fields.split(",").join(" ");
+      query = query.select(fields);
+    }
+
+    const page = req.query.page;
+    const limit = req.query.limit;
+    const skip = (page - 1) * limit;
+    query = query.skip(skip).limit(limit);
+
+    if (req.query.page) {
+      const produtCount = await Product.countDocuments();
+      if (skip >= produtCount) throw new Error("This Page does not exist");
+    }
+
     const allproducts = await query;
     res.json(allproducts);
   } catch (error) {
