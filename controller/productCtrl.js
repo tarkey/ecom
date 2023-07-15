@@ -16,7 +16,7 @@ const createProduct = asyncHandler(async (req, res) => {
 });
 
 const updateProduct = asyncHandler(async (req, res) => {
-  const id = req.params;
+  const { id } = req.params;
   try {
     if (req.body.title) {
       req.body.slug = slugify(req.body.title);
@@ -32,7 +32,7 @@ const updateProduct = asyncHandler(async (req, res) => {
 });
 
 const deleteProduct = asyncHandler(async (req, res) => {
-  const id = req.params;
+  const { id } = req.params;
   try {
     const product = await Product.findByIdAndDelete(id);
     res.json(product);

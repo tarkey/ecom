@@ -11,7 +11,6 @@ const morgan = require("morgan");
 
 const port = process.env.PORT || 8001;
 dbConnect();
-app.use(morgan());
 app.use(bodyparser.json());
 app.use(bodyparser.urlencoded({ extended: false }));
 app.use(cookieParser());
