@@ -169,6 +169,19 @@ const unblockUser = asyncHandler(async (req, res) => {
     throw new Error(error);
   }
 });
+const updatePassword = asyncHandler(async (req, res) => {
+  const { _id } = req.user;
+  const password = req.body;
+  validateDbId(_id);
+  const user = await User.findById(_id);
+  if (password) {
+    user.password = password.password;
+    const updatePassword = user.save();
+    res.json(updatePassword);
+  } else {
+    res.json(user);
+  }
+});
 
 module.exports = {
   createUser,
@@ -181,4 +194,5 @@ module.exports = {
   unblockUser,
   handleRefreshToken,
   handleLogout,
+  updatePassword,
 };
