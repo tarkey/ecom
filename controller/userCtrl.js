@@ -4,6 +4,8 @@ const asyncHandler = require("express-async-handler");
 const validateDbId = require("../utils/validatemongoDbId");
 const { generateRefreshToken } = require("../config/refreshToken");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
+const { sendEmail } = require("./emailCtrl");
 
 const createUser = asyncHandler(async (req, res) => {
   const email = req.body.email;
@@ -183,6 +185,43 @@ const updatePassword = asyncHandler(async (req, res) => {
   }
 });
 
+const forgotPasssword = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email });
+  if (!user) throw new Error("User not found with this email");
+  try {
+    const token = await user.createPasswordResetToken();
+    await user.save();
+    const resetUrl = `Please follow this link for reseting the password. This link is valid till 10 minutes <a href="https:localhost:8001/api/user/reset-password/${token}">Click Her</a>`;
+    const data = {
+      to: email,
+      text: "Hey user",
+      subject: "Reset password link",
+      html: resetUrl,
+    };
+    sendEmail(data);
+    res.json(token);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
+const resetPassword = asyncHandler(async (req, res) => {
+  const { password } = req.body;
+  const { token } = req.params;
+  const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+  const user = await User.findOne({
+    passwordResetToken: hashedToken,
+    passwordResetExpires: { $gt: Date.now() },
+  });
+  if (!user) throw new Error("Reset token expired");
+  user.password = password;
+  user.passwordResetToken = undefined;
+  user.passwordResetExpires = undefined;
+  await user.save();
+  res.json(user);
+});
+
 module.exports = {
   createUser,
   loginUserCtrl,
@@ -195,4 +234,6 @@ module.exports = {
   handleRefreshToken,
   handleLogout,
   updatePassword,
+  forgotPasssword,
+  resetPassword,
 };
